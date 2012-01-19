@@ -1,0 +1,34 @@
+{
+    "name": "docit",
+    "version": "0.0.1",
+    "author": "Allan Boyd <millionyearsold@gmail.com>",
+    "description": "Generate Markdown from Javascript (javadoc style) code comments",
+    "keywords": "jsdoc, markdown, dox, comments",
+    "bugs": { "url" : "http://github.com/allanmboyd/docit/issues" },
+    "main": "lib/docit.js",
+    "directories": {
+        "lib": "./lib",
+        "example": "./examples"
+    },
+    "repository" : {
+        "type": "git",
+        "url": "http://github.com/allanmboyd/formatErrors.git"
+    },
+    "bin": {
+        "docit": "./bin/cli.js"
+    },
+    "scripts": {
+        "test": "./node_modules/jshint/bin/hint lib/docit.js test/testDocit.js && ./node_modules/nodeunit/bin/nodeunit test/testDocit.js"
+    },
+    "dependencies" : {
+        "dox": "0.1.3"
+    },
+    "devDependencies": {
+        "jshint": "0.5.6",
+        "nodeunit": "0.6.4",
+        "should": "0.4.2"
+    },
+    "engine": {
+        "node": ">= 0.6.6"
+    }
+}
