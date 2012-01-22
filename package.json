@@ -7,7 +7,7 @@
     "bugs": { "url" : "http://github.com/allanmboyd/docit/issues" },
     "main": "lib/docit.js",
     "directories": {
-        "lib": "./lib",
+        "lib": "./lib"
     },
     "repository" : {
         "type": "git",
