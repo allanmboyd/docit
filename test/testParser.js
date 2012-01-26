@@ -1,7 +1,5 @@
 var loadModule = require("./testHelpers/moduleLoader.js").loadModule;
-var parser = require("../lib/parser");
 var should = require("should");
-var util = require("util");
 
 var parserModule = loadModule("./lib/parser.js");
 var parserExports = parserModule.module.exports;
@@ -14,7 +12,8 @@ exports.testParse = function (test) {
     comments.length.should.equal(2);
     comments[0].doc.should.equal("/** \n * This is a comment\n\n * @param {String} param a parameter\n */");
     comments[0].code.should.equal("\nvar f = function () { more code } ");
-    var docData = comments[0].docData;
+    comments[0].codeFirstLine.should.equal("var f = function () { more code } ");
+    var docData = comments[0].triagedDoc;
     docData.length.should.equal(3);
     docData[0].should.equal("This is a comment");
     docData[1].should.equal("");
@@ -22,7 +21,8 @@ exports.testParse = function (test) {
 
     comments[1].doc.should.equal("/**\n * Another comment \n */");
     should.not.exist(comments[1].code);
-    docData = comments[1].docData;
+    should.not.exist(comments[1].codeFirstLine);
+    docData = comments[1].triagedDoc;
     docData.length.should.equal(1);
     docData[0].should.equal("Another comment");
     
@@ -74,14 +74,14 @@ exports.testFindComments = function (test) {
     test.done();
 };
 
-exports.testNormalizeComment = function (test) {
+exports.testTriageComment = function (test) {
     var comments = parserModule.findComments(MULTILINE_CODE_COMMENTS);
-    var normalized = parserModule.normalizeComment (comments[0].doc);
+    var triaged = parserModule.triageComment(comments[0].doc);
 
-    normalized.length.should.equal(3);
-    normalized[0].should.equal("This is a comment");
-    normalized[1].should.equal("");
-    normalized[2].should.equal("@param {String} param a parameter");
+    triaged.length.should.equal(3);
+    triaged[0].should.equal("This is a comment");
+    triaged[1].should.equal("");
+    triaged[2].should.equal("@param {String} param a parameter");
 
     test.done();
 };
@@ -105,6 +105,19 @@ exports.testIsCommentLine = function (test) {
     check("* * *", false);
     check("", false);
     check("\n", false);
+
+    test.done();
+};
+
+exports.testFirstNonEmptyLine = function (test) {
+    var line = parserModule.firstNonEmptyLine("hello");
+    line.should.equal("hello");
+    line = parserModule.firstNonEmptyLine(MULTILINE_CODE_COMMENTS);
+    line.should.equal("function () { some ");
+    line = parserModule.firstNonEmptyLine("\n  \n" + MULTILINE_CODE_COMMENTS);
+    line.should.equal("function () { some ");
+    line = parserModule.firstNonEmptyLine(" ");
+    line.should.equal(" ");
 
     test.done();
 };
