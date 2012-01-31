@@ -4,7 +4,7 @@ var should = require("should");
 var parserModule = loadModule("./lib/parser.js");
 var parserExports = parserModule.module.exports;
 
-var MULTILINE_CODE_COMMENTS = "function () { some \ncode\n here }\n\n /** \n * This is a comment\n\n * @param {String} param a parameter\n */\nvar f = function () { more code } /**\n * Another comment \n */";
+var MULTILINE_CODE_COMMENTS = "function () { some \ncode\n here }\n\n /** \n * This is a comment\n\n * @param {String} param a parameter\n */\nvar f = function () { more code } /**\n * Another comment \n */\nfunction codeCodeCode() {\n    code code code \n}";
 
 exports.testParse = function (test) {
     var comments = parserExports.parse(MULTILINE_CODE_COMMENTS);
@@ -20,8 +20,8 @@ exports.testParse = function (test) {
     docData[2].should.equal("@param {String} param a parameter");
 
     comments[1].doc.should.equal("/**\n * Another comment \n */");
-    should.not.exist(comments[1].code);
-    should.not.exist(comments[1].codeFirstLine);
+    should.equal(comments[1].code, "\nfunction codeCodeCode() {\n    code code code \n}");
+    should.equal(comments[1].codeFirstLine, "function codeCodeCode() {");
     docData = comments[1].triagedDoc;
     docData.length.should.equal(1);
     docData[0].should.equal("Another comment");
@@ -69,7 +69,7 @@ exports.testFindComments = function (test) {
     comments[0].doc.should.equal("/** \n * This is a comment\n\n * @param {String} param a parameter\n */");
     comments[0].code.should.equal("\nvar f = function () { more code } ");
     comments[1].doc.should.equal("/**\n * Another comment \n */");
-    should.equal(comments[1].code, null);
+    should.equal(comments[1].code, "\nfunction codeCodeCode() {\n    code code code \n}");
     
     test.done();
 };
