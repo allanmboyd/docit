@@ -43,12 +43,37 @@ var TEST_CODE = "/** \n" +
     "};\n" +
     "\n";
 
+TEST_CODE_MD = "formaterrors\n============\n\n" +
+    "An API that provides various options for formatting and highlighting Errors. May be useful for logging and test\n" +
+    "frameworks for example.\n\n" +
+    "Stack lines can be filtered in and out based on patterns and limited by range (e.g. lines 2 through 10). Stack lines\n" +
+    "and error message can have highlights applied based on patterns. Finally stack lines can be formatted to include or\n" +
+    "exclude available fields.\n\n" +
+    "The API is quite flexible with a range of methods varying in level with means to specify custom highlights and\n" +
+    "formats.\n\n" +
+    "*Requires:* diffMatchPatch, stack-trace\n\n" +
+    "formatStack\n-----------\n\n###exports.formatStack = function (error, stackFormat)###\n\n" +
+    "Format the stack part (i.e. the stack lines not the message part in the stack) according to a specified StackFormat.\n" +
+    "(See exports.StackFormat for available stack line fields.)\n\n\n" +
+    "####Parameters####\n\n* error *Error* the error whose stack to format\n" +
+    "* stackFormat *StackFormat* the specification for the required format\n\n" +
+    "####Returns####\n\n" +
+    "*Error* the given error with its stack modified according to the given StackFormat\n\n";
+
 exports.testCommentsToMD = function(test) {
     var comment = "/**\nSome module comment\n*@module Something\n*@requires nothing\n*/\n";
-//    var md = docitExports.commentsToMD(comment);
-//    should.equal(md, "Something\n=========\nSome module comment\n*Requires:* nothing\n");
-//    md = docitExports.commentsToMD(TEST_CODE);
-//    console.log(md);
+    var md = docitExports.commentsToMD(comment);
+    should.equal(md, "Something\n=========\n\nSome module comment\n\n*Requires:* nothing\n\n");
+    md = docitExports.commentsToMD(TEST_CODE, jsCodeHandler);
+    try {
+        should.equal(TEST_CODE_MD, md);
+    } catch (error) {
+        var stackTheme = new formaterrors.StackTheme();
+        stackTheme.messageLineHighlights = [formaterrors.STYLES.BOLD];
+        stackTheme.stackHighlights = [formaterrors.STYLES.BOLD];
+        stackTheme.stackHighlightPatterns = ["testDocit"];
+        throw formaterrors.highlightAssertionError(error, stackTheme);
+    }
     test.done();
 };
 
@@ -129,14 +154,14 @@ exports.testProcessModuleComment = function (test) {
     var md = docitModule.processModuleComment(comments[0]);
 
     try {
-    should.equal(md, "formaterrors\n============\n\nAn API that provides various options for formatting and " +
+    should.equal("formaterrors\n============\n\nAn API that provides various options for formatting and " +
         "highlighting Errors. May be useful for logging and test\nframeworks for example.\n\n" +
         "Stack lines can be filtered in and out based on patterns and limited by range (e.g. lines 2 through 10). " +
         "Stack lines\nand error message can have highlights applied based on patterns. Finally stack lines can be " +
         "formatted to include or\nexclude available fields.\n\n" +
         "The API is quite flexible with a range of methods varying in level with means to specify custom " +
         "highlights and\nformats.\n\n" +
-        "*Requires:* diffMatchPatch, stack-trace\n");
+        "*Requires:* diffMatchPatch, stack-trace\n", md);
     } catch (error) {
         var stackTheme = new formaterrors.StackTheme();
         stackTheme.messageLineHighlights = [formaterrors.STYLES.BOLD];
@@ -160,6 +185,13 @@ exports.testProcessMethodComment = function (test) {
     comments = parser.parse(comment, jsCodeHandler);
     md = docitModule.processMethodComment(comments[0]);
     md.should.equal("hello\n-----\n\n###function hello(p1, p2)###\n\nSome method comment\n\n####Parameters####\n\n* p1 *Object* param1\n* p2 param2\n" +
+        "\n####Returns####\n\n*String* returned value\n");
+
+    comment = "/**\nSome method comment\n*@param {Object} p1 param1\n@param p2 param2\n" +
+        "@return {String} returned value\n*@method hello\n*/\nexports.hello = function (p1, p2) {}\n";
+    comments = parser.parse(comment, jsCodeHandler);
+    md = docitModule.processMethodComment(comments[0]);
+    md.should.equal("hello\n-----\n\n###exports.hello = function (p1, p2)###\n\nSome method comment\n\n####Parameters####\n\n* p1 *Object* param1\n* p2 param2\n" +
         "\n####Returns####\n\n*String* returned value\n");
 
     test.done();
