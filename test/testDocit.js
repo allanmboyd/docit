@@ -1,3 +1,5 @@
+var formaterrors = require("formaterrors");
+var jsCodeHandler = require("../lib/codeHandlers/jsCodeHandler");
 var loadModule = require("./testHelpers/moduleLoader.js").loadModule;
 var parser = require("../lib/parser");
 var should = require("should");
@@ -43,37 +45,18 @@ var TEST_CODE = "/** \n" +
 
 exports.testCommentsToMD = function(test) {
     var comment = "/**\nSome module comment\n*@module Something\n*@requires nothing\n*/\n";
-    var md = docitExports.commentsToMD(comment);
-    should.equal(md, "Something\n=========\nSome module comment\n*Requires:* nothing\n");
-    md = docitExports.commentsToMD(TEST_CODE);
-    console.log(md);
-    test.done();
-};
-
-exports.testBuildMarkdownFromComment = function(test) {
-    var comment = "/**\nSome module comment\n*@module Something\n*@requires nothing\n*/\n";
-    var comments = parser.parse(comment);
-    var md = "";
-    md = docitModule.buildMarkdownFromComment(comments[0], md);
-    should.equal(md, "Some module comment\n*Requires:* nothing\n");
-    test.done();
-};
-
-exports.testDetermineModuleName = function(test) {
-    var comments = parser.parse(TEST_CODE);
-    var moduleName = docitModule.determineModuleName(comments[0]);
-    moduleName.should.equal("formaterrors");
-    comments = parser.parse("/**\nSome module comment\n*@module Something\n*requires nothing\n*/\n");
-    moduleName = docitModule.determineModuleName(comments[0]);
-    moduleName.should.equal("Something");
+//    var md = docitExports.commentsToMD(comment);
+//    should.equal(md, "Something\n=========\nSome module comment\n*Requires:* nothing\n");
+//    md = docitExports.commentsToMD(TEST_CODE);
+//    console.log(md);
     test.done();
 };
 
 exports.testApplyMarkdown = function(test) {
     var md = docitModule.applyMarkdown("Hello", "=");
-    md.should.equal("Hello\n=====\n");
+    md.should.equal("Hello\n=====");
     md = docitModule.applyMarkdown("Hello", "-");
-    md.should.equal("Hello\n-----\n");
+    md.should.equal("Hello\n-----");
     md = docitModule.applyMarkdown("Hello", "*");
     md.should.equal("*Hello*");
     md = docitModule.applyMarkdown("Hello", "**");
@@ -99,62 +82,113 @@ exports.testCharConcat = function(test) {
     test.done();
 };
 
-exports.testMethodNameFromJSCode = function (test) {
-    var mName = docitModule.methodNameFromJSCode("var hello = function() {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var helloVar = function () {");
-    mName.should.equal("helloVar");
-    mName = docitModule.methodNameFromJSCode("    var helloVar   =   function () {");
-    mName.should.equal("helloVar");
-    mName = docitModule.methodNameFromJSCode("exports.hello = function () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("    exports.hello   = function () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var variable = function () {");
-    mName.should.equal("variable");
-    mName = docitModule.methodNameFromJSCode("var hello = function () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var hello = function () ");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var hello = function() {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var hello= function () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var hello=function () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var hello=function() {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("var hello=function () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("function hello () {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("function hello ()");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("    function hello ()");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("function hello() {");
-    mName.should.equal("hello");
-    mName = docitModule.methodNameFromJSCode("function(){");
-    should.not.exist(mName);
-    mName = docitModule.methodNameFromJSCode("var hello = 5;");
-    should.not.exist(mName);
-    test.done();
-};
 
-exports.testDetermineMethodName = function (test) {
+exports.testDetermineTagValue = function (test) {
     var comment = "/**\nSome method comment\n*@method hello\n*/\n";
     var comments = parser.parse(comment);
-    var mName = docitModule.determineMethodName(comments[0]);
-    mName.should.equal("hello");
-    comment = "/**\nSome method comment\n*/\nfunction hello()";
-    mName = docitModule.determineMethodName(comments[0], docitModule.methodNameFromJSCode);
-    mName.should.equal("hello");
+    var tagValue = docitModule.determineTagValue("@method", comments[0]);
+    tagValue.should.equal("hello");
+    tagValue = docitModule.determineTagValue("@requires", comments[0]);
+    should.not.exist(tagValue);
+
+    comment = "/**\nSome method comment\n@param p a param\n*@method hello\n*/\n";
+    comments = parser.parse(comment);
+    tagValue = docitModule.determineTagValue("@param", comments[0]);
+    util.inspect(tagValue).should.equal(util.inspect({"name": "p", "comment": "a param"}));
+    tagValue = docitModule.determineTagValue("@method", comments[0]);
+    tagValue.should.equal("hello");
+    tagValue = docitModule.determineTagValue("@requires", comments[0]);
+    should.not.exist(tagValue);
+
+    comment = "/**\nSome method comment\n*/\nfunction aMethod() {}";
+    comments = parser.parse(comment, jsCodeHandler);
+    tagValue = docitModule.determineTagValue("methodSignature", comments[0]);
+    tagValue.should.equal("function aMethod()");
+
+    tagValue = docitModule.determineTagValue("methodName", comments[0]);
+    tagValue.should.equal("aMethod");
+    test.done();
+};
+
+exports.testProcessModuleComment = function (test) {
+    var moduleComment = "/** \n" +
+        " * An API that provides various options for formatting and highlighting Errors. May be useful for logging and test\n" +
+        " * frameworks for example.\n" +
+        " *\n" +
+        " * Stack lines can be filtered in and out based on patterns and limited by range (e.g. lines 2 through 10). Stack lines\n" +
+        " * and error message can have highlights applied based on patterns. Finally stack lines can be formatted to include or\n" +
+        " * exclude available fields.\n" +
+        " *\n" +
+        " * The API is quite flexible with a range of methods varying in level with means to specify custom highlights and\n" +
+        " * formats.\n" +
+        " * @module formaterrors\n" +
+        " * @class formaterrors\n" +
+        " * @requires diffMatchPatch, stack-trace\n" +
+        " */\n";
+    var comments = parser.parse(moduleComment);
+    var md = docitModule.processModuleComment(comments[0]);
+
+    try {
+    should.equal(md, "formaterrors\n============\n\nAn API that provides various options for formatting and " +
+        "highlighting Errors. May be useful for logging and test\nframeworks for example.\n\n" +
+        "Stack lines can be filtered in and out based on patterns and limited by range (e.g. lines 2 through 10). " +
+        "Stack lines\nand error message can have highlights applied based on patterns. Finally stack lines can be " +
+        "formatted to include or\nexclude available fields.\n\n" +
+        "The API is quite flexible with a range of methods varying in level with means to specify custom " +
+        "highlights and\nformats.\n\n" +
+        "*Requires:* diffMatchPatch, stack-trace\n");
+    } catch (error) {
+        var stackTheme = new formaterrors.StackTheme();
+        stackTheme.messageLineHighlights = [formaterrors.STYLES.BOLD];
+        stackTheme.stackHighlights = [formaterrors.STYLES.BOLD];
+        stackTheme.stackHighlightPatterns = ["testDocit"];
+        throw formaterrors.highlightAssertionError(error, stackTheme);
+    }
+    test.done();
+};
+
+exports.testProcessMethodComment = function (test) {
+    var comment = "/**\nSome method comment\n*@param {Object} p1 param1\n@param p2 param2\n" +
+        "@return {String} returned value\n*@method hello\n*/\nfunction hello(p1, p2) {}\n";
+    var comments = parser.parse(comment);
+    var md = docitModule.processMethodComment(comments[0]);
+    md.should.equal("hello\n-----\n\nSome method comment\n\n####Parameters####\n\n* p1 *Object* param1\n* p2 param2\n" +
+        "\n####Returns####\n\n*String* returned value\n");
+
+    comment = "/**\nSome method comment\n*@param {Object} p1 param1\n@param p2 param2\n" +
+        "@return {String} returned value\n*@method hello\n*/\nfunction hello(p1, p2) {}\n";
+    comments = parser.parse(comment, jsCodeHandler);
+    md = docitModule.processMethodComment(comments[0]);
+    md.should.equal("hello\n-----\n\n###function hello(p1, p2)###\n\nSome method comment\n\n####Parameters####\n\n* p1 *Object* param1\n* p2 param2\n" +
+        "\n####Returns####\n\n*String* returned value\n");
 
     test.done();
 };
 
-exports.testParseParameterTag = function (test) {
-    var paramLine = "@param {StackTheme} stackTheme the theme for the error";
-    docitModule.parseParameterTag(paramLine);
+exports.testProcessParamTag = function (test) {
+    var paramTag = {
+        name: "p",
+        comment: "comment"
+    };
+
+    var md = docitModule.processParamTag(paramTag);
+    md.should.equal("* p comment");
+
+    paramTag.type = "String";
+    md = docitModule.processParamTag(paramTag);
+    md.should.equal("* p *String* comment");
+
+    test.done();
+};
+
+exports.testProcessReturnTag = function (test) {
+    var returnTag = {
+        type: "String",
+        comment: "comment"
+    };
+
+    var md = docitModule.processReturnTag(returnTag);
+    md.should.equal("*String* comment");
+
     test.done();
 };
