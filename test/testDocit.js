@@ -1,5 +1,5 @@
+var config = require("nconf");
 var formaterrors = require("formaterrors");
-var jsCodeHandler = require("../lib/codeHandlers/jsCodeHandler");
 var loadModule = require("./testHelpers/moduleLoader.js").loadModule;
 var parser = require("../lib/parser");
 var should = require("should");
@@ -60,11 +60,17 @@ TEST_CODE_MD = "formaterrors\n============\n\n" +
     "####Returns####\n\n" +
     "*Error* the given error with its stack modified according to the given StackFormat\n\n";
 
+
+config.overrides({
+    "codeHandler": "../lib/codeHandlers/jsCodeHandler"
+});
+config.defaults(docitExports.DEFAULT_SETTINGS);
+
 exports.testCommentsToMD = function(test) {
     var comment = "/**\nSome module comment\n*@module Something\n*@requires nothing\n*/\n";
     var md = docitExports.commentsToMD(comment);
     should.equal(md, "Something\n=========\n\nSome module comment\n\n*Requires:* nothing\n\n");
-    md = docitExports.commentsToMD(TEST_CODE, jsCodeHandler);
+    md = docitExports.commentsToMD(TEST_CODE, config);
     try {
         should.equal(TEST_CODE_MD, md);
     } catch (error) {
@@ -126,7 +132,7 @@ exports.testDetermineTagValue = function (test) {
     should.not.exist(tagValue);
 
     comment = "/**\nSome method comment\n*/\nfunction aMethod() {}";
-    comments = parser.parse(comment, jsCodeHandler);
+    comments = parser.parse(comment, require(config.get("codeHandler")));
     tagValue = docitModule.determineTagValue("methodSignature", comments[0]);
     tagValue.should.equal("function aMethod()");
 
@@ -182,14 +188,14 @@ exports.testProcessMethodComment = function (test) {
 
     comment = "/**\nSome method comment\n*@param {Object} p1 param1\n@param p2 param2\n" +
         "@return {String} returned value\n*@method hello\n*/\nfunction hello(p1, p2) {}\n";
-    comments = parser.parse(comment, jsCodeHandler);
+    comments = parser.parse(comment, require(config.get("codeHandler")));
     md = docitModule.processMethodComment(comments[0]);
     md.should.equal("hello\n-----\n\n###function hello(p1, p2)###\n\nSome method comment\n\n####Parameters####\n\n* p1 *Object* param1\n* p2 param2\n" +
         "\n####Returns####\n\n*String* returned value\n");
 
     comment = "/**\nSome method comment\n*@param {Object} p1 param1\n@param p2 param2\n" +
         "@return {String} returned value\n*@method hello\n*/\nexports.hello = function (p1, p2) {}\n";
-    comments = parser.parse(comment, jsCodeHandler);
+    comments = parser.parse(comment, require(config.get("codeHandler")));
     md = docitModule.processMethodComment(comments[0]);
     md.should.equal("hello\n-----\n\n###exports.hello = function (p1, p2)###\n\nSome method comment\n\n####Parameters####\n\n* p1 *Object* param1\n* p2 param2\n" +
         "\n####Returns####\n\n*String* returned value\n");

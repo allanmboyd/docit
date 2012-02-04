@@ -1,18 +1,18 @@
 var argv = require('optimist').argv;
+var config = require("nconf");
 var docit = require("../lib/docit");
 var fs = require("fs");
 var path = require("path");
-var codeHandler = null;
+var util = require("util");
 
-if (argv.codeHandler) {
-    codeHandler = require(argv.codeHandler)
-}
+var configFile = argv.config || "config.json";
+config.argv().env().file({file: configFile});
+config.defaults(docit.DEFAULT_SETTINGS);
 
-if (argv.dir) {
-    var outDir = argv.out || "docit";
-    processFiles(argv.dir, outDir);
+if (config.get("dir")) {
+    var outDir = config.get("out") || "docit";
+    processFiles(config.get("dir"), outDir);
 } else {
-// process stdin
     var buf = '';
     process.stdin.setEncoding('utf8');
     process.stdin.on('data', function(chunk) {
@@ -49,7 +49,7 @@ function processFile(source, target) {
         if (error) {
             throw error;
         }
-        data = docit.commentsToMD(data, codeHandler);
+        data = docit.commentsToMD(data, config);
         fs.writeFile(target, data, "utf8", function (error) {
             if (error) {
                 throw error;
