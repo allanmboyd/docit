@@ -5,7 +5,7 @@ var util = require("util");
 var parserModule = loadModule("./lib/parser.js");
 var parserExports = parserModule.module.exports;
 
-var MULTILINE_CODE_COMMENTS = "/**\n * Some comment text\n* @module testmodule\n * @requires nothing, something\n**/\nfunction () { some \ncode\n here }\n\n /** \n * This is a comment\n\n * @param {String} param a parameter\n *@return {String} the return value\n*/\nvar f = function () { more code }\n /**\n * Another comment \n @param p1 first param \n @param p2 second param\n   */\nfunction codeCodeCode(p1, p2) {\n    code code code \n}";
+var MULTILINE_CODE_COMMENTS = "/**\n * Some comment text\n* @module testmodule\n * @requires nothing, something\n**/\nfunction () { some \ncode\n here }\n\n /** \n * This is a comment\n\n * @param {String} param a parameter\n *@return {String} the return value\n*/\nvar f = function () { more code }\n /**\n * Another comment \n @param p1 first param\n @param p2 second param\n   */\nfunction codeCodeCode(p1, p2) {\n    code code code \n}";
 
 exports.testParseNoCodeHandler = function (test) {
     var comments;
@@ -139,12 +139,21 @@ exports.testRemovePrecedingAsterisks = function (test) {
     parserModule.removePrecedingAsterisks(" ************ hello * ").should.equal(" hello *");
     parserModule.removePrecedingAsterisks(" ****** ****** hello * ").should.equal(" ****** hello *");
     parserModule.removePrecedingAsterisks("hello").should.equal("hello");
+    parserModule.removePrecedingAsterisks("    hello").should.equal("    hello");
+    parserModule.removePrecedingAsterisks("*    hello").should.equal("    hello");
     test.done();
 };
 
 exports.testApiTagProcessor = function (test) {
     var result = parserModule.apiTagProcessor("@api public");
     result["@api"].should.equal("public");
+    test.done();
+};
+
+
+exports.testPrivateTagProcessor = function (test) {
+    var result = parserModule.privateTagProcessor("@private");
+    result["@private"].should.equal("");
     test.done();
 };
 
@@ -168,4 +177,3 @@ exports.testCommentEndProcessor = function (test) {
 
     test.done();
 };
-

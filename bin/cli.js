@@ -1,16 +1,30 @@
-var argv = require('optimist').argv;
 var config = require("nconf");
 var docit = require("../lib/docit");
 var fs = require("fs");
+var optimist = require("optimist");
+var options = require("./options").options;
 var path = require("path");
 var util = require("util");
 
-var configFile = argv.config || "config.json";
-config.argv().env().file({file: configFile});
-config.defaults(docit.DEFAULT_SETTINGS);
+initializeOptimist();
+
+var argv = optimist.argv;
+
+if(argv.h || argv.help) {
+    optimist.showHelp();
+    process.exit(0);
+}
+
+config.argv().env();
+
+if(argv.config){
+    config.file({file: argv.config});
+}
+
+initializeConfigDefaults();
 
 if (config.get("dir")) {
-    var outDir = config.get("out") || "docit";
+    var outDir = config.get("out");
     processFiles(config.get("dir"), outDir);
 } else {
     var buf = '';
@@ -20,7 +34,7 @@ if (config.get("dir")) {
     });
     process.stdin.on('end',
         function() {
-            var md = docit.commentsToMD(buf, codeHandler);
+            var md = docit.commentsToMD(buf, config);
             process.stdout.write(md);
         }).resume();
 }
@@ -49,7 +63,7 @@ function processFile(source, target) {
         if (error) {
             throw error;
         }
-        data = docit.commentsToMD(data, config);
+        data = docit.commentsToMD(data, config, makeModuleName(source));
         fs.writeFile(target, data, "utf8", function (error) {
             if (error) {
                 throw error;
@@ -60,7 +74,7 @@ function processFile(source, target) {
 
 function checkTargetDir(targetDir) {
     if (!path.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, 0766);
+        fs.mkdirSync(targetDir, 0755);
     }
 }
 
@@ -68,4 +82,47 @@ function makeTargetFilename(sourceFileName) {
     return sourceFileName.indexOf(".") !== -1 ?
         sourceFileName.substring(0, sourceFileName.lastIndexOf(".")) + ".md" :
         sourceFileName + ".md";
+}
+
+function makeModuleName(sourceFileName) {
+    return path.basename(sourceFileName);
+}
+
+function initializeOptimist() {
+    importOptionsIntoOptimist();
+    optimist.wrap(79).usage(usage());
+}
+
+function usage() {
+    var u = "Usage: docit [--config=<path/to/config/file>] " +
+        "[--dir=<folder/containing/commented/code> | <stdin>] [--out=<path/to/output/folder>] [configOption]";
+
+    return u;
+}
+
+function importOptionsIntoOptimist() {
+    for (var option in options) {
+        if (options.hasOwnProperty(option)) {
+            for(var optionAttribute in options[option]) {
+                if(options[option].hasOwnProperty(optionAttribute)) {
+                    optimist[optionAttribute](option, options[option][optionAttribute]);
+                }
+            }
+        }
+    }
+}
+
+function initializeConfigDefaults() {
+    var defaults = (function () {
+        var d = {};
+        for (var option in options) {
+            if(options.hasOwnProperty(option) && options[option]["default"]) {
+                d[option] = options[option]["default"];
+            }
+        }
+
+        return d;
+    }());
+
+    config.defaults(defaults);
 }

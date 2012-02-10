@@ -1,0 +1,20 @@
+{
+    "codeHandler": "./codehandlers/jsCodeHandler.js",
+    "defaultModuleHeading": "Module",
+    "includePrivate": "false",
+    "includeHRBeforeMethod": "true",
+    "horizontalRuleMarkdown": "\n------------------------------------------------\n",
+    "methodHeadingMarkdown": "-",
+    "methodSignatureMarkdown": "###",
+    "moduleHeadingMarkdown": "=",
+    "paramsHeading": "Parameters",
+    "paramsHeadingMarkdown": "####",
+    "paramsListMarkdown": "*",
+    "paramTypeMarkdown": "*",
+    "requiresLabel": "Requires:",
+    "requiresLabelMarkdown": "*",
+    "returnHeading": "Returns",
+    "returnHeadingMarkdown": "####",
+    "returnTypeMarkdown": "*",
+    "typeHeadingMarkdown": "-"
+}
