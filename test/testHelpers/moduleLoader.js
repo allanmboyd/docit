@@ -13,8 +13,6 @@ var path = require('path');
 exports.loadModule = function(filePath, mocks) {
     mocks = mocks || {};
 
-    console.log(filePath);
-    
     // this is necessary to allow relative path modules within loaded file
     // i.e. requiring ./some inside file /a/b.js needs to be resolved to /a/some
     var resolveModule = function(module) {

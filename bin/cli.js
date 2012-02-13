@@ -1,10 +1,10 @@
+#!/usr/bin/env node
+
 var config = require("nconf");
+var cliHelper = require("../lib/cliHelper");
 var docit = require("../lib/docit");
-var fs = require("fs");
 var optimist = require("optimist");
 var options = require("./options").options;
-var path = require("path");
-var util = require("util");
 
 initializeOptimist();
 
@@ -24,8 +24,7 @@ if(argv.config){
 initializeConfigDefaults();
 
 if (config.get("dir")) {
-    var outDir = config.get("out");
-    processFiles(config.get("dir"), outDir);
+    cliHelper.processFiles(config);
 } else {
     var buf = '';
     process.stdin.setEncoding('utf8');
@@ -39,66 +38,13 @@ if (config.get("dir")) {
         }).resume();
 }
 
-function processFiles(sourceDir, targetDir) {
-    fs.readdir(sourceDir, function(error, dirContents) {
-        if (error) {
-            throw error;
-        }
-        checkTargetDir(targetDir);
-        for (var i = 0; i < dirContents.length; i += 1) {
-            var path = sourceDir + "/" + dirContents[i];
-            var stats = fs.statSync(path);
-            if (stats.isDirectory()) {
-                processFiles(path, targetDir + "/" + dirContents[i]);
-            } else {
-                var targetFile = makeTargetFilename(dirContents[i]);
-                processFile(path, targetDir + "/" + targetFile)
-            }
-        }
-    });
-}
-
-function processFile(source, target) {
-    fs.readFile(source, "utf8", function (error, data) {
-        if (error) {
-            throw error;
-        }
-        data = docit.commentsToMD(data, config, makeModuleName(source));
-        fs.writeFile(target, data, "utf8", function (error) {
-            if (error) {
-                throw error;
-            }
-        });
-    })
-}
-
-function checkTargetDir(targetDir) {
-    if (!path.existsSync(targetDir)) {
-        fs.mkdirSync(targetDir, 0755);
-    }
-}
-
-function makeTargetFilename(sourceFileName) {
-    return sourceFileName.indexOf(".") !== -1 ?
-        sourceFileName.substring(0, sourceFileName.lastIndexOf(".")) + ".md" :
-        sourceFileName + ".md";
-}
-
-function makeModuleName(sourceFileName) {
-    return path.basename(sourceFileName);
-}
 
 function initializeOptimist() {
     importOptionsIntoOptimist();
-    optimist.wrap(79).usage(usage());
+    optimist.wrap(79).usage("Usage: docit [--config=<file path>] " +
+        "[--dir=<dir path> | <stdin>] [--out=<dir path>] [configOption]");
 }
 
-function usage() {
-    var u = "Usage: docit [--config=<path/to/config/file>] " +
-        "[--dir=<folder/containing/commented/code> | <stdin>] [--out=<path/to/output/folder>] [configOption]";
-
-    return u;
-}
 
 function importOptionsIntoOptimist() {
     for (var option in options) {

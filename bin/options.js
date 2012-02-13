@@ -26,7 +26,7 @@ exports.options = {
         "describe": "This message."
     },
     "horizontalRuleMarkdown": {
-        "default": "\n------------------------------------------------\n",
+        "default": "* * *\n\n",
         "describe": "Horizontal rule markdown string."
     },
     "methodHeadingMarkdown": {
