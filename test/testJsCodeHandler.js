@@ -75,3 +75,20 @@ exports.testVariableNameFromVariableDecl = function (test) {
     jsExports.variableNameFromVariableDecl("var    hello").should.equal("hello");
     test.done();
 };
+
+exports.testIsVariableDecl = function (test) {
+    jsExports.isVariableDecl("var hello").should.equal(true);
+    jsExports.isVariableDecl("var hello = 10").should.equal(true);
+    jsExports.isVariableDecl("var hello = function ()").should.equal(false);
+    jsExports.isVariableDecl("var hello = function (p1, p2)").should.equal(false);
+    jsExports.isVariableDecl("exports.hello = 10").should.equal(true);
+    jsExports.isVariableDecl("exports.hello = function ()").should.equal(false);
+    jsExports.isVariableDecl("exports.hello = function (p1, p2)").should.equal(false);
+    test.done();
+};
+
+exports.testVariableNameFromExportsVariableDecl = function (test) {
+    jsExports.variableNameFromVariableDecl("exports.hello = 1").should.equal("hello");
+    jsExports.variableNameFromVariableDecl("exports.hello").should.equal("hello");
+    test.done();
+};
