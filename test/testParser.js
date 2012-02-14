@@ -56,7 +56,7 @@ exports.testParseNoCodeHandler = function (test) {
 
     comments = parserExports.parse("var a = 1;\nfunction hello() {\n   console.log(a); \n}");
     util.inspect(comments).should.equal("''");
-    
+
     comments = parserExports.parse(MULTILINE_CODE_COMMENTS);
     comments.length.should.equal(3);
     comments[0].text.should.equal("Some comment text");
@@ -174,16 +174,35 @@ exports.testRemovePrecedingAsterisks = function (test) {
     test.done();
 };
 
-exports.testApiTagProcessor = function (test) {
-    var result = parserModule.apiTagProcessor("@api public");
-    result["@api"].should.equal("public");
-    test.done();
-};
+exports.testSimpleTags = function (test) {
 
+    var checkSimpleTag = function (tagDetails) {
+        for (var i = 0; i < tagDetails.length; i += 1) {
+            var result = parserExports.parse("/**\nA comment\n" + tagDetails[i].tag + " tag comment\n*/");
+            result.length.should.equal(1);
+            result[0].text.should.equal("A comment");
+            result[0].tags.length.should.equal(1);
+            result[0].tags[0][tagDetails[i].tag].should.equal("tag comment");
+            if (tagDetails[i].type) {
+                result[0].type.should.equal(tagDetails[i].type);
+            }
+        }
+    };
+    checkSimpleTag([
+        {tag: "@api", type: "METHOD"},
+        {tag: "@class", type: "TYPE"},
+        {tag: "@requires", type: "MODULE"},
+        {tag: "@constructor"},
+        {tag: "@author"},
+        {tag: "@deprecated"},
+        {tag: "@method", type: "METHOD"},
+        {tag: "@module", type: "MODULE"},
+        {tag: "@private"},
+        {tag: "@see"},
+        {tag: "@version"}
+    ]
+    );
 
-exports.testPrivateTagProcessor = function (test) {
-    var result = parserModule.privateTagProcessor("@private");
-    result["@private"].should.equal("");
     test.done();
 };
 
