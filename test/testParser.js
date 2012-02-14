@@ -7,6 +7,31 @@ var parserExports = parserModule.module.exports;
 
 var MULTILINE_CODE_COMMENTS = "/**\n * Some comment text\n* @module testmodule\n * @requires nothing, something\n**/\nfunction () { some \ncode\n here }\n\n /** \n * This is a comment\n\n * @param {String} param a parameter\n *@return {String} the return value\n*/\nvar f = function () { more code }\n /**\n * Another comment \n @param p1 first param\n @param p2 second param\n   */\nfunction codeCodeCode(p1, p2) {\n    code code code \n}";
 
+exports.testParseMultiLineParam = function (test) {
+    var comments;
+    comments = parserExports.parse("/**\nTest\n@param {String} s multi\nline\nparam\ncomment\n*/");
+    comments.length.should.equal(1);
+    comments[0].text.should.equal("Test");
+    comments[0].tags[0]["@param"].name.should.equal("s");
+    comments[0].tags[0]["@param"].type.should.equal("String");
+    comments[0].tags[0]["@param"].comment.should.equal("multi\nline\nparam\ncomment");
+    test.done();
+};
+
+exports.testParseMultiLineReturn = function (test) {
+    var comments;
+    comments = parserExports.parse("/**\nTest\n@param {String} s multi\nline\nparam\ncomment\n" +
+        "@return {Object} a\nmulti\nline\nreturn\n*/");
+    comments.length.should.equal(1);
+    comments[0].text.should.equal("Test");
+    comments[0].tags[0]["@param"].name.should.equal("s");
+    comments[0].tags[0]["@param"].type.should.equal("String");
+    comments[0].tags[0]["@param"].comment.should.equal("multi\nline\nparam\ncomment");
+    comments[0].tags[1]["@return"].type.should.equal("Object");
+    comments[0].tags[1]["@return"].comment.should.equal("a\nmulti\nline\nreturn");
+    test.done();
+};
+
 exports.testParseNoCodeHandler = function (test) {
     var comments;
     comments = parserExports.parse("\n/**\nThis is a module that does something.\n* @module moduleName\n * @requires something\n*/");
@@ -175,5 +200,13 @@ exports.testCommentEndProcessor = function (test) {
     result = parserModule.commentEndProcessor("hello **/");
     result.should.equal("*/");
 
+    test.done();
+};
+
+exports.testKeys = function (test) {
+    var keys = parserModule.keys({a: 5, b: "three"});
+    keys.length.should.equal(2);
+    keys[0].should.equal("a");
+    keys[1].should.equal("b");
     test.done();
 };

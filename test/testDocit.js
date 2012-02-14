@@ -42,6 +42,7 @@ var TEST_CODE = "/** \n" +
     "};\n" +
     "\n";
 
+
 TEST_CODE_MD = "formaterrors\n============\n\n" +
     "An API that provides various options for formatting and highlighting Errors. May be useful for logging and test\n" +
     "frameworks for example.\n\n" +
@@ -64,6 +65,26 @@ module.exports = {
         docitModule = loadModule("./lib/docit.js");
         docitExports = docitModule.module.exports;
         callback();
+    },
+    testCommentsToMDMultiLineTags : function (test) {
+        var methodComment = "/**\nA method comment\n@param {String} s a\nmulti\nline\nparam\ncomment\n" +
+            "@return {Object} a\nmulti\nline\nreturn\ncomment\n*/\n";
+        methodComment += methodComment;
+
+        var config = require("nconf");
+        config.overrides({
+            "includeHRBeforeMethod": "false"
+        });
+        config.defaults(docitModule.DEFAULT_SETTINGS);
+
+        var md = docitExports.commentsToMD(methodComment, config);
+
+        var expected = "A method comment\n####Parameters####\n\n* s *String* a\nmulti\nline\nparam\ncomment\n\n" +
+            "####Returns####\n\n*Object* a\nmulti\nline\nreturn\ncomment\n\n";
+        expected += expected;
+        md.should.equal(expected);
+        
+        test.done();
     },
     testCommentsToMD : function(test) {
         var config = require("nconf");
@@ -118,7 +139,6 @@ module.exports = {
         s.should.equal("=====");
         test.done();
     },
-
 
     testDetermineTagValue : function (test) {
         var comment = "/**\nSome method comment\n*@method hello\n*/\n";
