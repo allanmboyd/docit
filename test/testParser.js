@@ -123,36 +123,41 @@ exports.testParseJsCodeHandler = function (test) {
     test.done();
 };
 
-exports.testParseParameterOrReturnTag = function (test) {
+exports.testParseCommonMethodTag = function (test) {
     var paramLine = "@param {StackTheme} stackTheme the theme for the error";
-    var tag = parserModule.parseParameterOrReturnTag(paramLine, "@param");
+    var tag = parserModule.parseCommonMethodTag(paramLine, "@param");
     tag["@param"].type.should.equal("StackTheme");
     tag["@param"].name.should.equal("stackTheme");
     tag["@param"].comment.should.equal("the theme for the error");
 
     paramLine = "@param   {StackTheme}   stackTheme   the   theme   for   the   error ";
-    tag = parserModule.parseParameterOrReturnTag(paramLine, "@param");
+    tag = parserModule.parseCommonMethodTag(paramLine, "@param");
     tag["@param"].type.should.equal("StackTheme");
     tag["@param"].name.should.equal("stackTheme");
     tag["@param"].comment.should.equal("the   theme   for   the   error ");
 
     paramLine = "@param";
-    tag = parserModule.parseParameterOrReturnTag(paramLine, "@param");
+    tag = parserModule.parseCommonMethodTag(paramLine, "@param");
     should.not.exist(tag["@param"].type);
     should.not.exist(tag["@param"].name);
     should.not.exist(tag["@param"].comment);
 
-    tag = parserModule.parseParameterOrReturnTag("", "@param");
+    tag = parserModule.parseCommonMethodTag("", "@param");
     should.not.exist(tag["@param"].type);
     should.not.exist(tag["@param"].name);
     should.not.exist(tag["@param"].comment);
 
     var returnLine = "@return {String} a String";
-    tag = parserModule.parseParameterOrReturnTag(returnLine, "@return");
+    tag = parserModule.parseCommonMethodTag(returnLine, "@return");
     tag["@return"].type.should.equal("String");
     should.not.exist(tag["@return"].name);
     tag["@return"].comment.should.equal("a String");
-    
+
+    var throwsLine = "@throws {IllegalStateException} when there is an illegal state";
+    tag = parserModule.parseCommonMethodTag(throwsLine, "@throws");
+    tag["@throws"].type.should.equal("IllegalStateException");
+    should.not.exist(tag["@throws"].name);
+    tag["@throws"].comment.should.equal("when there is an illegal state");
     test.done();
 };
 
