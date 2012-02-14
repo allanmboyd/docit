@@ -13,6 +13,9 @@ exports.options = {
     "dir" : {
         "describe": "Path to folder containing commented code to be processed by docit. Docit will recurse down any subfolders within this directory path."
     },
+    "includeFiles": {
+        "describe": "Comma separated list of file names or expressions used to determine the files to process when --dir option is employed."
+    },
     "includePrivate": {
         "default": "false",
         "describe": "Include comments that are labelled as @private or @api private in the resulting md."
