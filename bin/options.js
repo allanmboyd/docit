@@ -1,7 +1,11 @@
 exports.options = {
     "codeHandler": {
-        "default": "./codehandlers/jsCodeHandler.js",
-        "describe": "An optional code handler to handle code specific aspects of the output markdown. For example method signature and deriving method name from signature when not specified within the method comment."
+        "default": null,
+        "describe": "An optional code handler to handle code specific aspects of the output markdown. For example method signature and deriving method name from signature when not specified within the method comment. If specified codeHandler will override codeHandlers."
+    },
+    "codeHandlers": {
+        "default":  [{"\\.js": "./codehandlers/jsCodeHandler"}],
+        "describe": "Mappings of code handlers to expressions. Used to associated code handlers with corresponding files e.g. javascript files with .js files."
     },
     "config": {
         "describe": "Path to a json configuration file defining custom options. All command line options - except this one and --help - will be used if present. Options specified directly on the command line override file loaded options."
@@ -22,6 +26,7 @@ exports.options = {
         "describe": "Path to folder containing commented code to be processed by docit. Docit will recurse down any subfolders within this directory path."
     },
     "includeFiles": {
+        "default": null,
         "describe": "Comma separated list of file names or expressions used to determine the files to process when --dir option is employed."
     },
     "includeHRAfterMethod": {

@@ -366,5 +366,46 @@ module.exports = {
         md.should.equal("*String* comment");
 
         test.done();
+    },
+
+    testDetermineCodeHandler: function (test) {
+        should.not.exist(docitModule.determineCodeHandler());
+        should.not.exist(docitModule.determineCodeHandler("hello"));
+        
+        var config = require("nconf");
+        config.overrides({
+            "codeHandler": "./codehandlers/jsCodeHandler"
+        });
+        config.defaults(docitModule.DEFAULT_SETTINGS);
+        docitModule.setConfig(config);
+        should.exist(docitModule.determineCodeHandler().methodSignature);
+        should.exist(docitModule.determineCodeHandler("test.js").methodSignature);
+
+        config = require("nconf");
+        config.overrides({
+            "codeHandler": null
+        });
+        config.defaults(docitModule.DEFAULT_SETTINGS);
+        docitModule.setConfig(config);
+        should.exist(docitModule.determineCodeHandler("test.js").methodSignature);
+        should.not.exist(docitModule.determineCodeHandler("test"));
+
+        config = require("nconf");
+        config.overrides({
+            "codeHandler": null,
+            "codeHandlers":[
+                {"hello": "./codehandlers/jsCodeHandler"},
+                {"bye": "nothing"},
+                {"\\.js": "./codehandlers/jsCodeHandler"}
+            ]
+        });
+        config.defaults(docitModule.DEFAULT_SETTINGS);
+        docitModule.setConfig(config);
+
+        should.exist(docitModule.determineCodeHandler("test.js").methodSignature);
+        should.not.exist(docitModule.determineCodeHandler("test"));
+        should.exist(docitModule.determineCodeHandler("hello").methodSignature);
+
+        test.done();
     }
 };
