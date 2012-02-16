@@ -1,3 +1,5 @@
+var Comment = require("../lib/comments").Comment;
+
 var loadModule = require("./testHelpers/moduleLoader.js").loadModule;
 var should = require("should");
 var util = require("util");
@@ -232,5 +234,52 @@ exports.testKeys = function (test) {
     keys.length.should.equal(2);
     keys[0].should.equal("a");
     keys[1].should.equal("b");
+    test.done();
+};
+
+exports.testSortComments = function (test) {
+    var moduleComment = new Comment();
+    var typeComment = new Comment();
+    var varComment = new Comment();
+    var methodComment = new Comment();
+    var typelessComment = new Comment();
+
+    moduleComment.type = parserExports.COMMENT_TYPES.MODULE;
+    typeComment.type = parserExports.COMMENT_TYPES.TYPE;
+    varComment.type = parserExports.COMMENT_TYPES.VARIABLE;
+    methodComment.type = parserExports.COMMENT_TYPES.METHOD;
+
+    var comments = [];
+    comments.push(typelessComment);
+    comments.push(varComment);
+    comments.push(methodComment);
+    comments.push(typeComment);
+    comments.push(moduleComment);
+
+    var sorted = parserModule.sortComments(comments);
+
+    sorted.length.should.equal(5);
+    sorted[0].should.equal(moduleComment);
+    sorted[1].should.equal(typeComment);
+    sorted[2].should.equal(varComment);
+    sorted[3].should.equal(methodComment);
+    sorted[4].should.equal(typelessComment);
+
+    comments.push(methodComment);
+    comments.push(varComment);
+    comments.push(typelessComment);
+
+    sorted = parserModule.sortComments(comments);
+
+    sorted.length.should.equal(8);
+    sorted[0].should.equal(moduleComment);
+    sorted[1].should.equal(typeComment);
+    sorted[2].should.equal(varComment);
+    sorted[3].should.equal(varComment);
+    sorted[4].should.equal(methodComment);
+    sorted[5].should.equal(methodComment);
+    sorted[6].should.equal(typelessComment);
+    sorted[7].should.equal(typelessComment);
+    
     test.done();
 };

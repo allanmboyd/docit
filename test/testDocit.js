@@ -83,7 +83,7 @@ module.exports = {
             "####Returns####\n\n*Object* a\nmulti\nline\nreturn\ncomment\n\n";
         expected += expected;
         md.should.equal(expected);
-        
+
         test.done();
     },
     testCommentsToMD : function(test) {
@@ -245,6 +245,55 @@ module.exports = {
         comments = parser.parse("/**\n Some module comment\n*/");
         md = docitModule.processModuleComment(comments[0], "defaultName");
         md.should.include("defaultName");
+
+        test.done();
+    },
+
+    testProcessVariableComment : function (test) {
+        var comment = "/**\nHold all the states for tags.\n*/\nexports.STATES = some stuff\n";
+        var comments = parser.parse(comment, require("../lib/codeHandlers/jsCodeHandler"));
+        var md = docitModule.processVariableComment(comments[0]);
+        md.should.equal("Variables\n---------\n\n###STATES###\n\nHold all the states for tags.\n");
+
+        comment += "\n/**\nAnother variable\n@private\n*/\nexports.priv = 5\n";
+        comments = parser.parse(comment, require("../lib/codeHandlers/jsCodeHandler"));
+        comments.length.should.equal(2);
+        docitModule.processVariableComment(comments[1]).should.equal("");
+
+        var config = require("nconf");
+        config.overrides({
+            "codeHandler": "../lib/codehandlers/jsCodeHandler",
+            "includePrivate": "true"
+        });
+        config.defaults(docitModule.DEFAULT_SETTINGS);
+        md = docitExports.commentsToMD(comment, config);
+        md.should.equal("Variables\n---------\n\n###STATES###\n\nHold all the states for tags.\n" +
+            "\n\n###priv (private)###\n\nAnother variable\n\n");
+        test.done();
+    },
+
+    testProcessTypeComment : function (test) {
+        var comment = "/**\nStore comment details\nfor comments.\n@class Comment\n@constructor new Comment()\n*/\nexports.Comment = function ()\n";
+        var comments = parser.parse(comment, require("../lib/codeHandlers/jsCodeHandler"));
+        var md = docitModule.processTypeComment(comments[0]);
+        md.should.equal("Types\n-----\n\n###Comment###\n*Constructor:* new Comment()\n\nStore comment details\nfor comments.\n");
+
+        md = docitExports.commentsToMD(comment);
+        md.should.equal("Types\n-----\n\n###Comment###\n*Constructor:* new Comment()\n\nStore comment details\nfor comments.\n\n");
+
+        comment += "\n/**\nAnother class\n@class Another\n@constructor new Another()\n@private\n*/";
+        md = docitExports.commentsToMD(comment);
+        md.should.equal("Types\n-----\n\n###Comment###\n*Constructor:* new Comment()\n\nStore comment details\nfor comments.\n\n");
+
+        var config = require("nconf");
+        config.overrides({
+            "codeHandler": "../lib/codehandlers/jsCodeHandler",
+            "includePrivate": "true"
+        });
+        config.defaults(docitModule.DEFAULT_SETTINGS);
+        md = docitExports.commentsToMD(comment, config);
+        md.should.equal("Types\n-----\n\n###Comment###\n*Constructor:* new Comment()\n\nStore comment details\nfor comments.\n\n" +
+            "\n###Another (private)###\n*Constructor:* new Another()\n\nAnother class\n\n");
 
         test.done();
     },

@@ -6,6 +6,14 @@ exports.options = {
     "config": {
         "describe": "Path to a json configuration file defining custom options. All command line options - except this one and --help - will be used if present. Options specified directly on the command line override file loaded options."
     },
+    "constructorLabel": {
+        "default": "Constructor:",
+        "describe": "The label to associate with a constructor tag comment."
+    },
+    "constructorLabelMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown for the constructor label."
+    },
     "defaultModuleHeading": {
         "default": "Module",
         "describe": "The default heading for a any module that does not include one. This is only used when docit takes its input from stdio. Otherwise the input filename becomes the default module name."
@@ -16,13 +24,17 @@ exports.options = {
     "includeFiles": {
         "describe": "Comma separated list of file names or expressions used to determine the files to process when --dir option is employed."
     },
+    "includeHRAfterMethod": {
+        "default": "true",
+        "describe": "Include a horizontal rule after a method comment."
+    },
+    "includeHRBeforeMethod": {
+        "default": "false",
+        "describe": "Include a horizontal rule before a method comment."
+    },
     "includePrivate": {
         "default": "false",
         "describe": "Include comments that are labelled as @private or @api private in the resulting md."
-    },
-    "includeHRBeforeMethod": {
-        "default": "true",
-        "describe": "Include a horizontal rule before method comments."
     },
     "help": {
         "alias": "h",
@@ -64,6 +76,14 @@ exports.options = {
         "default": "*",
         "describe": "The emphasis markdown surrounding the type of a parameter."
     },
+    "privateTypeLabel": {
+        "default": " (private)",
+        "describe": "Label displayed adjacent to the type name when the type is private."
+    },
+    "privateVariableLabel": {
+        "default": " (private)",
+        "describe": "Label displayed adjacent to the variable name when the variable is private."
+    },
     "requiresLabel": {
         "default": "Requires:",
         "describe": "The label used to tag the line of modules upon which the current module depends."
@@ -84,8 +104,28 @@ exports.options = {
         "default": "*",
         "describe": "The emphasis markdown surrounding the type of a parameter."
     },
-    "typeHeadingMarkdown": {
+    typeNameMarkdown: {
+        "default": "###",
+        "describe": "The markdown to be applied to type names."
+    },
+    "typesHeading": {
+        "default": "Types",
+        "describe": "Heading for types section in the generated markdown."
+    },
+    "typesHeadingMarkdown": {
         "default": "-",
-        "describe": "Method heading markdown. Single - and = characters are interpreted as underlines spanning the length of the method name."
+        "describe": "Type heading markdown. Single - and = characters are interpreted as underlines spanning the length of the method name."
+    },
+    variableNameMarkdown: {
+        "default": "###",
+        "describe": "The markdown to be applied to variable names."
+    },
+    "variablesHeading": {
+        "default": "Variables",
+        "describe": "Heading for variables section in the generated markdown."
+    },
+    "variablesHeadingMarkdown": {
+        "default": "-",
+        "describe": "Varibales heading markdown. Single - and = characters are interpreted as underlines spanning the length of the method name."
     }
 };
