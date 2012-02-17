@@ -82,6 +82,7 @@ exports.testIsVariableDecl = function (test) {
     jsExports.isVariableDecl("var hello = function ()").should.equal(false);
     jsExports.isVariableDecl("var hello = function (p1, p2)").should.equal(false);
     jsExports.isVariableDecl("exports.hello = 10").should.equal(true);
+    jsExports.isVariableDecl("exports.TAG_NAMES = {").should.equal(true);
     jsExports.isVariableDecl("exports.hello = function ()").should.equal(false);
     jsExports.isVariableDecl("exports.hello = function (p1, p2)").should.equal(false);
     test.done();

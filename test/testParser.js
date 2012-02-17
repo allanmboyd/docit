@@ -57,7 +57,7 @@ exports.testParseNoCodeHandler = function (test) {
     util.inspect(comments).should.not.include("this should not appear");
 
     comments = parserExports.parse("var a = 1;\nfunction hello() {\n   console.log(a); \n}");
-    util.inspect(comments).should.equal("''");
+    comments.length.should.equal(0);
 
     comments = parserExports.parse(MULTILINE_CODE_COMMENTS);
     comments.length.should.equal(3);
@@ -126,37 +126,40 @@ exports.testParseJsCodeHandler = function (test) {
 };
 
 exports.testParseCommonMethodTag = function (test) {
-    var paramLine = "@param {StackTheme} stackTheme the theme for the error";
-    var tag = parserModule.parseCommonMethodTag(paramLine, "@param");
+    var paramComment = "/**\n@param {StackTheme} stackTheme the theme for the error\n*/\n";
+    var tag = parserExports.parse(paramComment)[0].tags[0];
     tag["@param"].type.should.equal("StackTheme");
     tag["@param"].name.should.equal("stackTheme");
     tag["@param"].comment.should.equal("the theme for the error");
 
-    paramLine = "@param   {StackTheme}   stackTheme   the   theme   for   the   error ";
-    tag = parserModule.parseCommonMethodTag(paramLine, "@param");
+    paramComment = "/**\n@param   {StackTheme}   stackTheme   the   theme   for   the   error \n*/\n";
+    tag = parserExports.parse(paramComment)[0].tags[0];
     tag["@param"].type.should.equal("StackTheme");
     tag["@param"].name.should.equal("stackTheme");
     tag["@param"].comment.should.equal("the   theme   for   the   error ");
 
-    paramLine = "@param";
-    tag = parserModule.parseCommonMethodTag(paramLine, "@param");
+    paramComment = "/**\n@param\n*/\n";
+    tag = parserExports.parse(paramComment)[0].tags[0];
     should.not.exist(tag["@param"].type);
     should.not.exist(tag["@param"].name);
     should.not.exist(tag["@param"].comment);
 
-    tag = parserModule.parseCommonMethodTag("", "@param");
-    should.not.exist(tag["@param"].type);
-    should.not.exist(tag["@param"].name);
-    should.not.exist(tag["@param"].comment);
+    var comments = parserExports.parse("/**\nhello\n*/\n@param param\n");
+    comments.length.should.equal(1);
+    comments[0].text.should.equal("hello");
+    comments[0].tags.length.should.equal(0);
 
-    var returnLine = "@return {String} a String";
-    tag = parserModule.parseCommonMethodTag(returnLine, "@return");
+    comments = parserExports.parse("@param param\n");
+    comments.length.should.equal(0);
+    
+    var returnLine = "/**\n@return {String} a String\n*/\n";
+    tag = parserExports.parse(returnLine)[0].tags[0];
     tag["@return"].type.should.equal("String");
     should.not.exist(tag["@return"].name);
     tag["@return"].comment.should.equal("a String");
 
-    var throwsLine = "@throws {IllegalStateException} when there is an illegal state";
-    tag = parserModule.parseCommonMethodTag(throwsLine, "@throws");
+    var throwsLine = "/**\n@throws {IllegalStateException} when there is an illegal state\n*/\n";
+    tag = parserExports.parse(throwsLine)[0].tags[0];
     tag["@throws"].type.should.equal("IllegalStateException");
     should.not.exist(tag["@throws"].name);
     tag["@throws"].comment.should.equal("when there is an illegal state");
@@ -180,7 +183,7 @@ exports.testSimpleTags = function (test) {
 
     var checkSimpleTag = function (tagDetails) {
         for (var i = 0; i < tagDetails.length; i += 1) {
-            var result = parserExports.parse("/**\nA comment\n" + tagDetails[i].tag + " tag comment\n*/");
+            var result = parserExports.parse("/**\nA comment\n" + tagDetails[i].tag + " tag comment\n*/\n");
             result.length.should.equal(1);
             result[0].text.should.equal("A comment");
             result[0].tags.length.should.equal(1);
@@ -188,6 +191,10 @@ exports.testSimpleTags = function (test) {
             if (tagDetails[i].type) {
                 result[0].type.should.equal(tagDetails[i].type);
             }
+
+            result = parserExports.parse("/**\nhello\n*/\n" + tagDetails[i].tag + "\n");
+            result[0].text.should.equal("hello");
+            result[0].tags.length.should.equal(0);
         }
     };
     checkSimpleTag([
