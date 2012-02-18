@@ -1,4 +1,20 @@
 exports.options = {
+    "apiLabel": {
+        "default": "API:",
+        "describe": "The label to associate with an api tag comment."
+    },
+    "apiLabelMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown for the api label."
+    },
+    "authorLabel": {
+        "default": "Author:",
+        "describe": "The label to associate with an author tag comment."
+    },
+    "authorLabelMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown for the author label."
+    },
     "codeHandler": {
         "default": null,
         "describe": "An optional code handler to handle code specific aspects of the output markdown. For example method signature and deriving method name from signature when not specified within the method comment. If specified codeHandler will override codeHandlers."
@@ -21,6 +37,14 @@ exports.options = {
     "defaultModuleHeading": {
         "default": "Module",
         "describe": "The default heading for a any module that does not include one. This is only used when docit takes its input from stdio. Otherwise the input filename becomes the default module name."
+    },
+    "deprecatedLabel": {
+        "default": "Deprecated:",
+        "describe": "The label to associate with an deprecated tag comment."
+    },
+    "deprecatedLabelMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown for the deprecated label."
     },
     "dir" : {
         "describe": "Path to folder containing commented code to be processed by docit. Docit will recurse down any subfolders within this directory path."
@@ -109,6 +133,14 @@ exports.options = {
         "default": "*",
         "describe": "The emphasis markdown surrounding the type of a parameter."
     },
+    "seeLabel": {
+        "default": "See:",
+        "describe": "The label to associate with a see tag comment."
+    },
+    "seeLabelMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown for the see label."
+    },
     typeNameMarkdown: {
         "default": "###",
         "describe": "The markdown to be applied to type names."
@@ -132,5 +164,13 @@ exports.options = {
     "variablesHeadingMarkdown": {
         "default": "-",
         "describe": "Varibales heading markdown. Single - and = characters are interpreted as underlines spanning the length of the method name."
+    },
+    "versionLabel": {
+        "default": "Version:",
+        "describe": "The label to associate with a version tag comment."
+    },
+    "versionLabelMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown for the version label."
     }
 };

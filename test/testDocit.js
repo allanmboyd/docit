@@ -18,7 +18,8 @@ var TEST_CODE = "/** \n" +
     " * The API is quite flexible with a range of methods varying in level with means to specify custom highlights and\n" +
     " * formats.\n" +
     " * @module formaterrors\n" +
-    " * @class formaterrors\n" +
+    " * @author A Author\n" +
+    " * @version 1.0\n" +
     " * @requires diffMatchPatch, stack-trace\n" +
     " */\n" +
     "var util = require('util');\n" +
@@ -51,7 +52,9 @@ TEST_CODE_MD = "formaterrors\n============\n\n" +
     "exclude available fields.\n\n" +
     "The API is quite flexible with a range of methods varying in level with means to specify custom highlights and\n" +
     "formats.\n\n" +
-    "*Requires:* diffMatchPatch, stack-trace\n\n" +
+    "*Author:* A Author\n" +
+    "*Requires:* diffMatchPatch, stack-trace\n" +
+    "*Version:* 1.0\n\n" +
     "formatStack\n-----------\n\n###exports.formatStack = function (error, stackFormat)###\n\n" +
     "Format the stack part (i.e. the stack lines not the message part in the stack) according to a specified StackFormat.\n" +
     "(See exports.StackFormat for available stack line fields.)\n\n" +
@@ -198,7 +201,7 @@ module.exports = {
 
         privateComment = "/**\nhello\n\n@method m\n@private\n*/";
         md = docitExports.commentsToMD(privateComment, config);
-        md.should.equal("m\n-\n\nhello\n\n*API* private\n\n");
+        md.should.equal("m\n-\n\nhello\n\n*API:* private\n\n");
         test.done();
     },
 
@@ -405,6 +408,14 @@ module.exports = {
         should.exist(docitModule.determineCodeHandler("test.js").methodSignature);
         should.not.exist(docitModule.determineCodeHandler("test"));
         should.exist(docitModule.determineCodeHandler("hello").methodSignature);
+
+        test.done();
+    },
+
+    testProcessSimpleTags: function (test) {
+        var comment = "/**\nHello\n@author author\n@deprecated dep\n@constructor con\n@see see\n@requires req\n@version ver\n*/\n";
+        var md = docitExports.commentsToMD(comment);
+        md.should.equal("Module\n======\n\nHello\n\n*Author:* author\n*Constructor:* con\n*Deprecated:* dep\n*Requires:* req\n*See:* see\n*Version:* ver\n\n");
 
         test.done();
     }
