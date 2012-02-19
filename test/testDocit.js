@@ -37,6 +37,7 @@ var TEST_CODE = "/** \n" +
     " * @param {Error} error the error whose stack to format\n" +
     " * @param {StackFormat} stackFormat the specification for the required format\n" +
     " * @return {Error} the given error with its stack modified according to the given StackFormat\n" +
+    " * @throws {Exception} an exception\n" +
     " */\n" +
     "exports.formatStack = function (error, stackFormat) {\n" +
     "    return formatStackInternal(error, getMessages(error).join(' ') + '\n', stackFormat);\n" +
@@ -61,7 +62,9 @@ TEST_CODE_MD = "formaterrors\n============\n\n" +
     "####Parameters####\n\n* error *Error* the error whose stack to format\n" +
     "* stackFormat *StackFormat* the specification for the required format\n\n" +
     "####Returns####\n\n" +
-    "*Error* the given error with its stack modified according to the given StackFormat\n\n";
+    "*Error* the given error with its stack modified according to the given StackFormat\n\n" +
+    "####Throws####\n\n" +
+    "*Exception* an exception\n\n";
 
 module.exports = {
     setUp: function (callback) {
@@ -102,7 +105,7 @@ module.exports = {
         should.equal(md, "Something\n=========\n\nSome module comment\n\n*Requires:* nothing\n\n");
         md = docitExports.commentsToMD(TEST_CODE, config);
         try {
-            should.equal(TEST_CODE_MD, md);
+            should.equal(md, TEST_CODE_MD);
         } catch (error) {
             var stackTheme = new formaterrors.StackTheme();
             stackTheme.messageLineHighlights = [formaterrors.STYLES.BOLD];
@@ -359,13 +362,13 @@ module.exports = {
         test.done();
     },
 
-    testProcessReturnTag : function (test) {
+    testProcessMethodOutTag : function (test) {
         var returnTag = {
             type: "String",
             comment: "comment"
         };
 
-        var md = docitModule.processReturnTag(returnTag);
+        var md = docitModule.processMethodOutTag(returnTag, "returnTypeMarkdown");
         md.should.equal("*String* comment");
 
         test.done();

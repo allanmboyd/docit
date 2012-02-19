@@ -131,7 +131,7 @@ exports.options = {
     },
     "returnTypeMarkdown": {
         "default": "*",
-        "describe": "The emphasis markdown surrounding the type of a parameter."
+        "describe": "The emphasis markdown surrounding the type of the thing returned from a method."
     },
     "seeLabel": {
         "default": "See:",
@@ -140,6 +140,18 @@ exports.options = {
     "seeLabelMarkdown": {
         "default": "*",
         "describe": "The emphasis markdown for the see label."
+    },
+    "throwsHeading": {
+        "default": "Throws",
+        "describe": "By default the description of any throws value from a method is given a heading. This is that heading."
+    },
+    "throwsHeadingMarkdown": {
+        "default": "####",
+        "describe": "The markdown to be applied to the throws heading."
+    },
+    "throwsTypeMarkdown": {
+        "default": "*",
+        "describe": "The emphasis markdown surrounding the type of an exception thrown by a method."
     },
     typeNameMarkdown: {
         "default": "###",
