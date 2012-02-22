@@ -1,6 +1,7 @@
 {
     "codeHandler": "./codehandlers/jsCodeHandler.js",
     "defaultModuleHeading": "Module",
+    "dir": "lib",
     "includePrivate": "false",
     "includeHRBeforeMethod": "true",
     "horizontalRuleMarkdown": "\n------------------------------------------------\n",
