@@ -1,6 +1,6 @@
 {
     "name": "docit",
-    "version": "0.0.1",
+    "version": "0.1.0",
     "author": "Allan Boyd <millionyearsold@gmail.com>",
     "description": "Language independent generation of Markdown from javadoc style code comments",
     "keywords": "jsdoc, markdown, comments, javadoc",
