@@ -87,7 +87,7 @@ module.exports = {
         });
         cliHelper.processFiles({
             get: function (setting) {
-                if(setting === "includeFiles") {
+                if (setting === "includeFiles") {
                     return ".js";
                 } else {
                     return "";
@@ -136,14 +136,7 @@ module.exports = {
         fsStub = sinon.stub(fs, "readFile").yields(new Error("an error"), "hello");
         docitStub = sinon.stub(docit, "commentsToMD").returns("hello md");
         fsMocker.expects("writeFile").withArgs("target", "hello md", "utf8").never();
-        try {
-            cliHelperModule.processFile("source", "target");
-            should.fail("Expected to see an error");
-        } catch (error) {
-            if (error.message !== "an error") {
-                throw error;
-            }
-        }
+        cliHelperModule.processFile("source", "target"); // this should cause a warning to be logged - todo  test that it does
         fsMocker.verify();
         test.done();
     },

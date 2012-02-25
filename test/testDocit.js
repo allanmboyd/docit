@@ -107,11 +107,7 @@ module.exports = {
         try {
             should.equal(md, TEST_CODE_MD);
         } catch (error) {
-            var stackTheme = new formaterrors.StackTheme();
-            stackTheme.messageLineHighlights = [formaterrors.STYLES.BOLD];
-            stackTheme.stackHighlights = [formaterrors.STYLES.BOLD];
-            stackTheme.stackHighlightPatterns = ["testDocit"];
-            throw formaterrors.highlightAssertionError(error, stackTheme);
+            throw formaterrors.boldError(error, "testDocit");
         }
         test.done();
     },
@@ -236,11 +232,7 @@ module.exports = {
                 "highlights and\nformats.\n\n" +
                 "*Requires:* diffMatchPatch, stack-trace\n", md);
         } catch (error) {
-            var stackTheme = new formaterrors.StackTheme();
-            stackTheme.messageLineHighlights = [formaterrors.STYLES.BOLD];
-            stackTheme.stackHighlights = [formaterrors.STYLES.BOLD];
-            stackTheme.stackHighlightPatterns = ["testDocit"];
-            throw formaterrors.highlightAssertionError(error, stackTheme);
+            throw formaterrors.boldError(error, "testDocit");
         }
 
         comments = parser.parse("/**\n@module hello\n*/");
