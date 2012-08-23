@@ -1,3 +1,4 @@
+[![build status](https://secure.travis-ci.org/allanmboyd/docit.png)](http://travis-ci.org/allanmboyd/docit)
 DocIt
 =====
 
